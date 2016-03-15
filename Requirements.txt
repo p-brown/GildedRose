@@ -1,0 +1,25 @@
+Requirements
+------------
+
+Small Inn, Prime Location - Innkeeper = Allison
+
+Buy and Sell only the Finest Goods
+
+Recently signed a supplier of Conjured items
+
+Goods are constantly degrading in quality as they approach their SellBy date
+
+Add a new feature to allow them to start selling a new category of items
+
+1. All items have a SellIn value -  number of days we have to sell the items
+2. All items have a Quality value - how valuable the item is
+3. End of each day the system lowers both values for every item
+4. Once the SellBy date has passed, Quality degrades twice as fast
+5. Quality is never negative
+6. Quality is never more than 50 except for Legendary items
+7. "Aged Brie": increases in Quality, older it gets
+8. "Sulfuras": is a Legendary item, never has to be sold, or decreases in Quality; Quality set to 80
+9. "Backstage passes": increases in Quality, older it gets; Quality increases by 2 when there are 10 days or less and by 3 when there are 5 days or less, but Quality drops to 0 after the concert
+10. To Add: "Conjured": items degrade in Quality twice as fast as Normal items
+
+Don't alter Item class or Items property. Why?  I have created an ItemCategory class which derives from the Item class but ideally I'd create a separate class linking a category with an item.

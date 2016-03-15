@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GildedRose.Tests", "src\GildedRose.Tests\GildedRose.Tests.csproj", "{CD4715A2-532E-4C74-BC40-36EE64F61FCA}"
 EndProject
@@ -26,6 +26,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{B8B88B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GildedRose.Console", "src\GildedRose.Console\GildedRose.Console.csproj", "{F2E879A9-7F1C-4C34-AB0D-2662F9815046}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GildedRose.Configuration", "src\GildedRose.Configuration\GildedRose.Configuration.csproj", "{8676E627-526C-4597-98DF-E305F5841730}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GildedRose.ItemApplication", "src\GildedRose.ItemApplication\GildedRose.ItemApplication.csproj", "{71F82D17-5E7C-4EE9-8168-F231DC5DD368}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GildedRose.ItemHandlers", "src\GildedRose.ItemHandlers\GildedRose.ItemHandlers.csproj", "{9317C7ED-85C0-4228-8DFC-7ED8C607AAE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +46,18 @@ Global
 		{F2E879A9-7F1C-4C34-AB0D-2662F9815046}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2E879A9-7F1C-4C34-AB0D-2662F9815046}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2E879A9-7F1C-4C34-AB0D-2662F9815046}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8676E627-526C-4597-98DF-E305F5841730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8676E627-526C-4597-98DF-E305F5841730}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8676E627-526C-4597-98DF-E305F5841730}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8676E627-526C-4597-98DF-E305F5841730}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71F82D17-5E7C-4EE9-8168-F231DC5DD368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F82D17-5E7C-4EE9-8168-F231DC5DD368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F82D17-5E7C-4EE9-8168-F231DC5DD368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F82D17-5E7C-4EE9-8168-F231DC5DD368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9317C7ED-85C0-4228-8DFC-7ED8C607AAE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9317C7ED-85C0-4228-8DFC-7ED8C607AAE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9317C7ED-85C0-4228-8DFC-7ED8C607AAE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9317C7ED-85C0-4228-8DFC-7ED8C607AAE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

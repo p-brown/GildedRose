@@ -1,124 +1,125 @@
-﻿using System.Collections.Generic;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Gilded Rose">
+// Copyright (c) Gilded Rose.  All rights reserved.
+// </copyright>
+// <summary>Defines the main program of the application.</summary>
+// -----------------------------------------------------------------------
 namespace GildedRose.Console
 {
-    class Program
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Globalization;
+    using System.Linq;
+    using GildedRose.Configuration;
+    using GildedRose.Console.Properties;
+    using GildedRose.ItemApplication;
+
+    /// <summary>
+    /// Defines the main program of the application.
+    /// </summary>
+    public class Program
     {
-        IList<Item> Items;
-        static void Main(string[] args)
+        /// <summary>
+        /// Defines a collection of item handlers loaded from configuration.
+        /// </summary>
+        private Dictionary<string, IItemHandler> itemHandlers = new Dictionary<string, IItemHandler>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Program"/> class.
+        /// </summary>
+        public Program()
         {
-            System.Console.WriteLine("OMGHAI!");
-
-            var app = new Program()
-                          {
-                              Items = new List<Item>
-                                          {
-                                              new Item {Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20},
-                                              new Item {Name = "Aged Brie", SellIn = 2, Quality = 0},
-                                              new Item {Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7},
-                                              new Item {Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80},
-                                              new Item
-                                                  {
-                                                      Name = "Backstage passes to a TAFKAL80ETC concert",
-                                                      SellIn = 15,
-                                                      Quality = 20
-                                                  },
-                                              new Item {Name = "Conjured Mana Cake", SellIn = 3, Quality = 6}
-                                          }
-
-                          };
-
-            app.UpdateQuality();
-
-            System.Console.ReadKey();
-
+            this.Items = new List<Item>();
         }
 
-        public void UpdateQuality()
+        /// <summary>
+        /// Gets the collection of items offered for sale.
+        /// </summary>
+        /// <value>The collection of items offered for sale.</value>
+        public IList<Item> Items
         {
-            for (var i = 0; i < Items.Count; i++)
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Defines the entry point for the application.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        public static void Main(string[] args)
+        {
+            Console.WriteLine("OMGHAI!");
+
+            // Start program and update quality of items
+            var app = new Program();
+            app.LoadConfiguration();
+            app.UpdateQuality();
+
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Loads the configuration of items.
+        /// </summary>
+        public void LoadConfiguration()
+        {
+            // Load item handlers
+            ItemMapConfigurationSection configurationSection = (ItemMapConfigurationSection)ConfigurationManager.GetSection("itemMap");
+            foreach (ItemHandlerConfigurationElement itemHandler in configurationSection.Handlers)
             {
-                if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+                // Get type
+                Type itemHandlerType = Type.GetType(itemHandler.Type);
+                if (itemHandlerType == null)
                 {
-                    if (Items[i].Quality > 0)
-                    {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
-
-                        if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
+                    throw new TypeLoadException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.FailedToLoadItemHandlerType, itemHandler.Type));
                 }
 
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                // Get properties
+                Dictionary<string, string> itemHandlerProperties = itemHandler.HandlerProperties.Cast<ItemPropertyConfigurationElement>().ToDictionary(p => p.Name, p => p.Value);
+
+                // Create item handler
+                IItemHandler itemHandlerInstance = (IItemHandler)Activator.CreateInstance(itemHandlerType, itemHandlerProperties);
+                this.itemHandlers.Add(itemHandler.Name, itemHandlerInstance);
+            }
+
+            // Load items
+            foreach (ItemConfigurationElement item in configurationSection.Items)
+            {
+                ItemCategoryConfigurationElement itemCategory = configurationSection.Categories.Cast<ItemCategoryConfigurationElement>().SingleOrDefault(c => c.Name == item.Category);
+                if (itemCategory == null)
                 {
-                    Items[i].SellIn = Items[i].SellIn - 1;
+                    throw new ConfigurationErrorsException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.CategoryNotSpecifiedInConfiguration, item.Category, item.Name));
                 }
 
-                if (Items[i].SellIn < 0)
-                {
-                    if (Items[i].Name != "Aged Brie")
-                    {
-                        if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                    }
-                }
+                this.Items.Add(new ItemCategory() { Name = item.Name, CategoryName = item.Category, SellIn = item.SellIn, Quality = item.Quality, ItemHandler = itemCategory.Handler });
             }
         }
 
+        /// <summary>
+        /// Updates the quality of the items.
+        /// </summary>
+        public void UpdateQuality()
+        {
+            // Update the quality on each item using the associated item handler
+            for (int i = 0; i < this.Items.Count; i++)
+            {
+                ItemCategory item = (ItemCategory)this.Items[i];
+
+                Console.Write($"Item: {item.Name}, Sell In: {item.SellIn}, Current Quality: {item.Quality}, ");
+
+                // Find item handler
+                IItemHandler handler = this.itemHandlers.Where(kvp => kvp.Key == item.ItemHandler).Select(kvp => kvp.Value).SingleOrDefault();
+                if (handler == null)
+                {
+                    throw new ConfigurationErrorsException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.ItemHandlerNotSpecifiedInConfiguration, item.ItemHandler, item.CategoryName));
+                }
+
+                // Update quality
+                handler.UpdateQuality(item);
+
+                Console.WriteLine($"Updated Quality: {item.Quality}");
+            }
+        }
     }
-
-    public class Item
-    {
-        public string Name { get; set; }
-
-        public int SellIn { get; set; }
-
-        public int Quality { get; set; }
-    }
-
 }

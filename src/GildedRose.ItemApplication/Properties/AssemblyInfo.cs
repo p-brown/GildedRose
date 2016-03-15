@@ -11,12 +11,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GildedRose.Console")]
+[assembly: AssemblyTitle("GildedRose.ItemApplication")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Gilded Rose")]
-[assembly: AssemblyProduct("GildedRose.Console")]
-[assembly: AssemblyCopyright("Copyright © Gilded Rose 2015")]
+[assembly: AssemblyCompany("GIlded Rose")]
+[assembly: AssemblyProduct("GildedRose.ItemApplication")]
+[assembly: AssemblyCopyright("Copyright © Gilded Rose 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("99f174df-0709-4d59-bd90-f1d9f64fd023")]
+[assembly: Guid("71f82d17-5e7c-4ee9-8168-f231dc5dd368")]
 
 // Version information for an assembly consists of the following four values:
 //
