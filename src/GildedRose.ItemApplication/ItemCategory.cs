@@ -27,6 +27,6 @@ namespace GildedRose.ItemApplication
         /// Gets or sets the item handler used to update the quality of the item.
         /// </summary>
         /// <value>The item handler used to update the quality of the item.</value>
-        public string ItemHandler { get; set; }
+        public IItemHandler ItemHandler { get; set; }
     }
 }

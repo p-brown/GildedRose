@@ -21,11 +21,6 @@ namespace GildedRose.Console
     public class Program
     {
         /// <summary>
-        /// Defines a collection of item handlers loaded from configuration.
-        /// </summary>
-        private Dictionary<string, IItemHandler> itemHandlers = new Dictionary<string, IItemHandler>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Program"/> class.
         /// </summary>
         public Program()
@@ -64,8 +59,10 @@ namespace GildedRose.Console
         /// </summary>
         public void LoadConfiguration()
         {
-            // Load item handlers
             ItemMapConfigurationSection configurationSection = (ItemMapConfigurationSection)ConfigurationManager.GetSection("itemMap");
+
+            // Load item handlers
+            Dictionary<string, IItemHandler> itemHandlers = new Dictionary<string, IItemHandler>();
             foreach (ItemHandlerConfigurationElement itemHandler in configurationSection.Handlers)
             {
                 // Get type
@@ -80,19 +77,27 @@ namespace GildedRose.Console
 
                 // Create item handler
                 IItemHandler itemHandlerInstance = (IItemHandler)Activator.CreateInstance(itemHandlerType, itemHandlerProperties);
-                this.itemHandlers.Add(itemHandler.Name, itemHandlerInstance);
+                itemHandlers.Add(itemHandler.Name, itemHandlerInstance);
             }
 
             // Load items
             foreach (ItemConfigurationElement item in configurationSection.Items)
             {
+                // Find item category
                 ItemCategoryConfigurationElement itemCategory = configurationSection.Categories.Cast<ItemCategoryConfigurationElement>().SingleOrDefault(c => c.Name == item.Category);
                 if (itemCategory == null)
                 {
                     throw new ConfigurationErrorsException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.CategoryNotSpecifiedInConfiguration, item.Category, item.Name));
                 }
 
-                this.Items.Add(new ItemCategory() { Name = item.Name, CategoryName = item.Category, SellIn = item.SellIn, Quality = item.Quality, ItemHandler = itemCategory.Handler });
+                // Find item handler
+                IItemHandler handler = itemHandlers.Where(kvp => kvp.Key == itemCategory.Handler).Select(kvp => kvp.Value).SingleOrDefault();
+                if (handler == null)
+                {
+                    throw new ConfigurationErrorsException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.ItemHandlerNotSpecifiedInConfiguration, itemCategory.Handler, item.Category));
+                }
+
+                this.Items.Add(new ItemCategory() { Name = item.Name, CategoryName = item.Category, SellIn = item.SellIn, Quality = item.Quality, ItemHandler = handler });
             }
         }
 
@@ -108,17 +113,10 @@ namespace GildedRose.Console
 
                 Console.Write($"Item: {item.Name}, Sell In: {item.SellIn}, Current Quality: {item.Quality}, ");
 
-                // Find item handler
-                IItemHandler handler = this.itemHandlers.Where(kvp => kvp.Key == item.ItemHandler).Select(kvp => kvp.Value).SingleOrDefault();
-                if (handler == null)
-                {
-                    throw new ConfigurationErrorsException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.ItemHandlerNotSpecifiedInConfiguration, item.ItemHandler, item.CategoryName));
-                }
-
                 // Update quality
-                handler.UpdateQuality(item);
+                item.ItemHandler.UpdateQuality(item);
 
-                Console.WriteLine($"Updated Quality: {item.Quality}");
+                Console.WriteLine($"Current Sell In: {item.SellIn}, Updated Quality: {item.Quality}");
             }
         }
     }
