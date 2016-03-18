@@ -70,6 +70,15 @@ namespace GildedRose.ItemHandlers.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There are {0} thresholds but {1} threshold increment values.  There must be a equal number of each..
+        /// </summary>
+        internal static string NumberOfThresholdsAndThresholdIncrementsNotTheSame {
+            get {
+                return ResourceManager.GetString("NumberOfThresholdsAndThresholdIncrementsNotTheSame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The quality {0} is greater than the maximum allowed of {1}..
         /// </summary>
         internal static string QualityGreaterThanMaximum {

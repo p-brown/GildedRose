@@ -120,6 +120,9 @@
   <data name="HandlerPropertyMissing" xml:space="preserve">
     <value>The {0} property is missing from the handler properties.</value>
   </data>
+  <data name="NumberOfThresholdsAndThresholdIncrementsNotTheSame" xml:space="preserve">
+    <value>There are {0} thresholds but {1} threshold increment values.  There must be a equal number of each.</value>
+  </data>
   <data name="QualityGreaterThanMaximum" xml:space="preserve">
     <value>The quality {0} is greater than the maximum allowed of {1}.</value>
   </data>

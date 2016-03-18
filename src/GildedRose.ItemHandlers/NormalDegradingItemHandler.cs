@@ -41,11 +41,6 @@ namespace GildedRose.ItemHandlers
         private int maxQuality;
 
         /// <summary>
-        /// The minimum Quality value allowed for the item.
-        /// </summary>
-        private int minQuality;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="NormalDegradingItemHandler"/> class.
         /// </summary>
         /// <param name="handlerProperties">The collection of handler properties.</param>
@@ -97,15 +92,6 @@ namespace GildedRose.ItemHandlers
             {
                 this.maxQuality = int.Parse(this.HandlerProperties["MaxQuality"], CultureInfo.InvariantCulture);
             }
-
-            if (!this.HandlerProperties.ContainsKey("MinQuality"))
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.HandlerPropertyMissing, "MinQuality"), "handlerProperties");
-            }
-            else
-            {
-                this.minQuality = int.Parse(this.HandlerProperties["MinQuality"], CultureInfo.InvariantCulture);
-            }
         }
 
         /// <summary>
@@ -120,9 +106,9 @@ namespace GildedRose.ItemHandlers
                 throw new ArgumentNullException("item");
             }
 
-            if (item.Quality < this.minQuality)
+            if (item.Quality < 0)
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.QualityLessThanMinimum, item.Quality, this.minQuality), "item");
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, ExceptionMessages.QualityLessThanMinimum, item.Quality, 0), "item");
             }
 
             if (item.Quality > this.maxQuality)
@@ -134,7 +120,7 @@ namespace GildedRose.ItemHandlers
             item.SellIn -= this.reduceSellInBy;
 
             // Decrease quality (only if we have not hit the minimum)
-            if (item.Quality > this.minQuality)
+            if (item.Quality > 0)
             {
                 if (item.SellIn >= 0)
                 {
@@ -143,6 +129,12 @@ namespace GildedRose.ItemHandlers
                 else
                 {
                     item.Quality -= this.reduceQualityBeyondSellInBy;
+                }
+
+                // Reset to minimum if below
+                if (item.Quality < 0)
+                {
+                    item.Quality = 0;
                 }
             }
         }
