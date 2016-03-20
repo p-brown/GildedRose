@@ -111,12 +111,17 @@ namespace GildedRose.Console
             {
                 ItemCategory item = (ItemCategory)this.Items[i];
 
-                Console.Write($"Item: {item.Name}, Sell In: {item.SellIn}, Current Quality: {item.Quality}, ");
+                Console.WriteLine($"Item: {item.Name}");
+                Console.WriteLine($"Initial Sell In: {item.SellIn}, Initial Quality: {item.Quality}");
 
-                // Update quality
-                item.ItemHandler.UpdateQuality(item);
+                // Adding this to see the effect on quality as the item approaches and then exceeds sell by (except for legendary items which don't age)
+                while (item.SellIn >= 0 && item.CategoryName != "Legendary")
+                {
+                    // Update quality
+                    item.ItemHandler.UpdateQuality(item);
 
-                Console.WriteLine($"Current Sell In: {item.SellIn}, Updated Quality: {item.Quality}");
+                    Console.WriteLine($"Sell In: {item.SellIn}, Quality: {item.Quality}");
+                }
             }
         }
     }

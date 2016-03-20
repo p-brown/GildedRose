@@ -61,7 +61,6 @@
     </Compile>
     <Compile Include="ItemHandlerBase.cs" />
     <Compile Include="FixedQualityNoSellItemHandler.cs" />
-    <Compile Include="IncrementingDegradingItemHandler.cs" />
     <Compile Include="IncrementingAgingItemHandler.cs" />
     <Compile Include="NormalAgingItemHandler.cs" />
     <Compile Include="NormalDegradingItemHandler.cs" />

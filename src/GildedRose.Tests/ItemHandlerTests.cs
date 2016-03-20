@@ -71,7 +71,7 @@ namespace GildedRose.Tests
             int quality = 0;
             int reduceSellInBy = 1;
             int increaseQualityBy = 2;
-            int increaseQualityBeyondSellInBy = 1;
+            int increaseQualityBeyondSellInBy = 4;
             int maxQuality = 50;
 
             // Test item handler
@@ -103,8 +103,8 @@ namespace GildedRose.Tests
         public void ItemHandler_GivenAnItemThatDegradesNormallyTheCloserTheSellByDateApproaches_WhenUpdateQualityCalledMoreThanOnce_ThenQualityShouldDecrementLinearlyByTwoUntilSellByDatePassedThenTwiceAsFast()
         {
             // Item properties
-            int sellIn = 10;
-            int quality = 20;
+            int sellIn = 3;
+            int quality = 6;
             int reduceSellInBy = 1;
             int reduceQualityBy = 2;
             int reduceQualityBeyondSellInBy = 4;
@@ -128,65 +128,26 @@ namespace GildedRose.Tests
             int[] increaseQualitySellInThresholdsBy = { 1, 2, 3 };
             int maxQuality = 50;
 
-            // Create handler properties
-            Dictionary<string, string> handlerProperties = new Dictionary<string, string>();
-            handlerProperties.Add("ReduceSellInBy", reduceSellInBy.ToString(CultureInfo.InvariantCulture));
-            handlerProperties.Add("IncreaseQualitySellInThresholds", string.Join(";", increaseQualitySellInThresholds));
-            handlerProperties.Add("IncreaseQualitySellInThresholdsBy", string.Join(";", increaseQualitySellInThresholdsBy));
-            handlerProperties.Add("MaxQuality", maxQuality.ToString(CultureInfo.InvariantCulture));
+            // Test item handler
+            ItemHandlerTests.TestIncrementingAgingItemHandler(quality, sellIn, reduceSellInBy, increaseQualitySellInThresholds, increaseQualitySellInThresholdsBy, maxQuality);
+        }
 
-            // Create handler and item
-            IItemHandler itemHandler = new IncrementingAgingItemHandler(handlerProperties);
-            ItemCategory item = new ItemCategory() { Name = "Backstage passes", CategoryName = "IncrementingAging", SellIn = sellIn, Quality = quality, ItemHandler = itemHandler };
+        /// <summary>
+        /// Tests the incrementing aging item handler.
+        /// </summary>
+        [TestMethod]
+        public void ItemHandler_GivenAnItemThatAgesBetterTheCloserTheSellByDateApproaches_WhenUpdateQualityCalledMoreThanOnce_ThenQualityShouldIncrementExponentiallyTheCloserTheSellByDateApproaches()
+        {
+            // Item properties
+            int sellIn = 15;
+            int quality = 1;
+            int reduceSellInBy = 1;
+            int[] increaseQualitySellInThresholds = { 15, 12, 8, 5 };
+            int[] increaseQualitySellInThresholdsBy = { 1, 2, 4, 8 };
+            int maxQuality = 50;
 
-            // Test
-            Assert.AreEqual<int>(quality, item.Quality, "The Quality should not have changed before updating the quality.");
-            Assert.AreEqual<int>(sellIn, item.SellIn, "The SellIn value should not have changed before updating the quality.");
-
-            bool done = false;
-            while (!done)
-            {
-                int currentQuality = item.Quality;
-                int currentSellIn = item.SellIn;
-
-                // Update the quality using the handler
-                itemHandler.UpdateQuality(item);
-
-                // Find right threshold
-                int thresholdLevel = 0;
-                for (int i = 0; i < increaseQualitySellInThresholds.Length; i++)
-                {
-                    if (item.SellIn <= increaseQualitySellInThresholds[i])
-                    {
-                        thresholdLevel = i;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                // Test that sell in decreased
-                Assert.AreEqual<int>(currentSellIn - 1, item.SellIn, "The SellIn value should have decreased after updating the quality.");
-
-                // Test that quality increased dependent with the sell in value
-                if (item.SellIn >= 0)
-                {
-                    if ((currentQuality + increaseQualitySellInThresholdsBy[thresholdLevel]) > maxQuality)
-                    {
-                        Assert.IsTrue(item.Quality == maxQuality, $"The Quality should have increased to the maximum quality {maxQuality}.");
-                    }
-                    else
-                    {
-                        Assert.AreEqual<int>(currentQuality + increaseQualitySellInThresholdsBy[thresholdLevel], item.Quality, $"The Quality should have increased by {increaseQualitySellInThresholdsBy[thresholdLevel]} after updating the quality.");
-                    }
-                }
-                else
-                {
-                    Assert.IsTrue(item.Quality == 0, $"The Quality should have dropped to zero once the sell by date had passed.");
-                    done = true;
-                }
-            }
+            // Test item handler
+            ItemHandlerTests.TestIncrementingAgingItemHandler(quality, sellIn, reduceSellInBy, increaseQualitySellInThresholds, increaseQualitySellInThresholdsBy, maxQuality);
         }
 
         /// <summary>
@@ -260,6 +221,78 @@ namespace GildedRose.Tests
                             Assert.AreEqual<int>(currentQuality + increaseQualityBeyondSellInBy, item.Quality, $"The Quality should have increased by {increaseQualityBeyondSellInBy} after updating the quality.");
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests an incrementing aging item handler.
+        /// </summary>
+        /// <param name="quality">The initial quality of the item.</param>
+        /// <param name="sellIn">The initial sell in value of the item.</param>
+        /// <param name="reduceSellInBy">The decrement value for reducing sell in.</param>
+        /// <param name="increaseQualitySellInThresholds">The thresholds of sell in value when quality increments change.</param>
+        /// <param name="increaseQualitySellInThresholdsBy">The increment value for quality for each threshold level.</param>
+        /// <param name="maxQuality">The maximum allowed quality.</param>
+        private static void TestIncrementingAgingItemHandler(int quality, int sellIn, int reduceSellInBy, int[] increaseQualitySellInThresholds, int[] increaseQualitySellInThresholdsBy, int maxQuality)
+        {
+            // Create handler properties
+            Dictionary<string, string> handlerProperties = new Dictionary<string, string>();
+            handlerProperties.Add("ReduceSellInBy", reduceSellInBy.ToString(CultureInfo.InvariantCulture));
+            handlerProperties.Add("IncreaseQualitySellInThresholds", string.Join(";", increaseQualitySellInThresholds));
+            handlerProperties.Add("IncreaseQualitySellInThresholdsBy", string.Join(";", increaseQualitySellInThresholdsBy));
+            handlerProperties.Add("MaxQuality", maxQuality.ToString(CultureInfo.InvariantCulture));
+
+            // Create handler and item
+            IItemHandler itemHandler = new IncrementingAgingItemHandler(handlerProperties);
+            ItemCategory item = new ItemCategory() { Name = "Backstage passes", CategoryName = "IncrementingAging", SellIn = sellIn, Quality = quality, ItemHandler = itemHandler };
+
+            // Test
+            Assert.AreEqual<int>(quality, item.Quality, "The Quality should not have changed before updating the quality.");
+            Assert.AreEqual<int>(sellIn, item.SellIn, "The SellIn value should not have changed before updating the quality.");
+
+            bool done = false;
+            while (!done)
+            {
+                int currentQuality = item.Quality;
+                int currentSellIn = item.SellIn;
+
+                // Update the quality using the handler
+                itemHandler.UpdateQuality(item);
+
+                // Find right threshold
+                int thresholdLevel = 0;
+                for (int i = 0; i < increaseQualitySellInThresholds.Length; i++)
+                {
+                    if (item.SellIn <= increaseQualitySellInThresholds[i])
+                    {
+                        thresholdLevel = i;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // Test that sell in decreased
+                Assert.AreEqual<int>(currentSellIn - 1, item.SellIn, "The SellIn value should have decreased after updating the quality.");
+
+                // Test that quality increased dependent with the sell in value
+                if (item.SellIn >= 0)
+                {
+                    if ((currentQuality + increaseQualitySellInThresholdsBy[thresholdLevel]) > maxQuality)
+                    {
+                        Assert.IsTrue(item.Quality == maxQuality, $"The Quality should have increased to the maximum quality {maxQuality}.");
+                    }
+                    else
+                    {
+                        Assert.AreEqual<int>(currentQuality + increaseQualitySellInThresholdsBy[thresholdLevel], item.Quality, $"The Quality should have increased by {increaseQualitySellInThresholdsBy[thresholdLevel]} after updating the quality.");
+                    }
+                }
+                else
+                {
+                    Assert.IsTrue(item.Quality == 0, $"The Quality should have dropped to zero once the sell by date had passed.");
+                    done = true;
                 }
             }
         }
